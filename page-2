@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A dynamic mini blog template">
+    <meta name="author" content="Your Name">
+    <title>Mini Blog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 36px;
+        }
+        nav {
+            background-color: #444;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .post {
+            border-bottom: 1px solid #ddd;
+            padding: 20px 0;
+        }
+        .post h2 {
+            margin-top: 0;
+            font-size: 28px;
+        }
+        .post .date {
+            font-size: 14px;
+            color: #777;
+        }
+        .post p {
+            line-height: 1.6;
+            font-size: 18px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <h1>My Dynamic Mini Blog</h1>
+        <p>Sharing my thoughts and stories</p>
+    </header>
+
+    <!-- Navigation Section -->
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+    </nav>
+
+    <!-- Blog Posts Container -->
+    <div class="container" id="blog-posts-container">
+        <!-- Dynamic blog posts will be inserted here -->
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>&copy; 2024 My Mini Blog. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Array of blog posts data
+        const blogPosts = [
+            {
+                title: "Title of the First Post",
+                date: "December 30, 2024",
+                content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum vehicula mi ut dui dictum, non lacinia libero auctor. Fusce at feugiat nisi. Nullam et gravida orci, ac auctor velit. Sed et erat mauris. Vivamus vehicula urna non purus malesuada, id vehicula ex vehicula.",
+                link: "#"
+            },
+            {
+                title: "Title of the Second Post",
+                date: "December 29, 2024",
+                content: "Curabitur ac suscipit enim. Phasellus efficitur lorem nec neque congue, ac tincidunt ante varius. Aenean cursus mi quis tortor sollicitudin, sit amet tempor nisi viverra. Cras tempor bibendum odio, sit amet feugiat tortor bibendum et.",
+                link: "#"
+            },
+            {
+                title: "Title of the Third Post",
+                date: "December 28, 2024",
+                content: "Donec ut sapien et lorem condimentum efficitur a ac erat. Etiam eget lacus arcu. Suspendisse potenti. Aenean tincidunt risus nec neque placerat, non lacinia ipsum condimentum. Donec auctor risus et lorem vestibulum, sit amet facilisis nulla ultricies.",
+                link: "#"
+            }
+        ];
+
+        // Function to render blog posts
+        function renderBlogPosts() {
+            const container = document.getElementById("blog-posts-container");
+            blogPosts.forEach(post => {
+                const postElement = document.createElement("div");
+                postElement.classList.add("post");
+
+                postElement.innerHTML = `
+                    <h2>${post.title}</h2>
+                    <p class="date">Published on: ${post.date}</p>
+                    <p>${post.content}</p>
+                    <a href="${post.link}">Read more...</a>
+                `;
+                container.appendChild(postElement);
+            });
+        }
+
+        // Call the render function when the page loads
+        window.onload = renderBlogPosts;
+    </script>
+
+</body>
+</html>
