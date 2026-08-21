@@ -1,10 +1,10 @@
-name: Auto Update Articles on New Post
+name: Auto Update Articles List
 
 on:
   push:
-    paths:
-      - 'posts/*.html'
     branches: ["main"]
+    paths:
+      - '_posts/**'
 
 permissions:
   contents: write
@@ -15,43 +15,38 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Detect New Post and Update index.html
+      - name: Rebuild Articles List in index.html
         run: |
-          # Find the most recently added HTML file in posts/
-          NEW_FILE=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep '^posts/.*\.html$' | head -n 1)
+          # Generate <li> HTML links for all files in _posts/
+          ARTICLES_HTML=""
+          for file in _posts/*.html; do
+            if [ -f "$file" ]; then
+              # Extract title from <title> tag, or fallback to filename
+              TITLE=$(grep -i -o '<title>[^<]*' "$file" | sed 's/<title>//I' || echo "$file")
+              ARTICLES_HTML="${ARTICLES_HTML}    <li><a href=\"${file}\">${TITLE}</a></li>\n"
+            fi
+          done
 
-          if [ -z "$NEW_FILE" ]; then
-            echo "No new article file detected."
-            exit 0
-          fi
-
-          # Extract title from <title> tag or default to filename
-          TITLE=$(grep -i -o '<title>.*</title>' "$NEW_FILE" | sed 's/<\/\?[^>]*>//g' | sed 's/ — Ayon//g' | sed 's/ - Ayon//g')
-          
-          if [ -z "$TITLE" ]; then
-            FILENAME=$(basename "$NEW_FILE" .html)
-            TITLE=$(echo "$FILENAME" | sed 's/^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-//' | tr '_' ' ' | tr '-' ' ')
-          fi
-
-          # Format new HTML link entry
-          NEW_ENTRY="    <li><a href=\"${NEW_FILE}\">${TITLE}</a></li>"
-
-          # Insert the entry directly after <!-- ARTICLES_START -->
-          awk -v entry="$NEW_ENTRY" '
+          # Replace content between ARTICLES_START and ARTICLES_END
+          awk -v list="$ARTICLES_HTML" '
             /<!-- ARTICLES_START -->/ {
               print $0
-              print entry
+              printf "%s", list
+              skip=1
               next
             }
-            { print }
+            /<!-- ARTICLES_END -->/ {
+              skip=0
+            }
+            !skip { print }
           ' index.html > temp.html && mv temp.html index.html
 
-          # Commit updated index.html back to repo
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html
-          git commit -m "chore: auto-add new article link [skip ci]" || exit 0
-          git push
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if ! git diff --quiet index.html; then
+            git add index.html
+            git commit -m "chore: auto-update articles list [skip ci]"
+            git push
+          fi
