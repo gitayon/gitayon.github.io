@@ -1,0 +1,45 @@
+name: Auto Update Timeline on Commit
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  update-timeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update index.html with Commit Message
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          MSG=$(git log -1 --pretty=format:"%s")
+
+          # Ignore automated timeline commits to prevent infinite loops
+          if [[ "$MSG" == "chore:"* ]]; then
+            echo "Skipping automated commit"
+            exit 0
+          fi
+
+          NEW_ENTRY="    <li>\n        <b>${DATE}:</b> ${MSG}\n    </li>"
+
+          awk -v entry="$NEW_ENTRY" '
+            /<!-- TIMELINE_START -->/ {
+              print $0
+              print entry
+              next
+            }
+            { print }
+          ' index.html > temp.html && mv temp.html index.html
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "chore: auto-update timeline" || exit 0
+          git push
